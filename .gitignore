@@ -53,9 +53,12 @@ Mkfile.old
 dkms.conf
 
 ### CMake ###
+<<<<<<< HEAD
 build
 bin
 
+=======
+>>>>>>> Add gitignore and feature list. (#1)
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
