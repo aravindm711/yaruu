@@ -7,6 +7,8 @@
 	"settings": {
 		"editor.tabSize": 4,
 		"editor.useTabStops": true,
-		"editor.insertSpaces": true
+		"editor.insertSpaces": true,
+		"C_Cpp.default.cStandard": "c11",
+		"C_Cpp.default.cppStandard": "c++17",
 	}
 }
