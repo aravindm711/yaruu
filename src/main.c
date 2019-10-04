@@ -1,7 +1,10 @@
 #include <stdbool.h> // defines _Bool as typedef alias bool
+#include <stdlib.h>
 #include <unistd.h>
 #include <argp.h>
 #include <stdio.h>
+#include <pthread.h>
+#include <errno.h>
 /*
  * Set argp globals 
  */
@@ -30,7 +33,7 @@ struct arguments
     PASSTHROUGH_MODE,
     CLIENT_MODE
   } mode;
-  char *string;
+  const char *string;
 };
 
 static error_t parse_options(int key, char *arg, struct argp_state *state)
@@ -61,6 +64,7 @@ static error_t parse_options(int key, char *arg, struct argp_state *state)
   default:
     return ARGP_ERR_UNKNOWN;
   }
+  return EXIT_SUCCESS;
 }
 static struct argp argp = {options, parse_options, args_doc, doc, 0, 0, 0};
 
@@ -70,7 +74,7 @@ int main(int argc, char **argv)
   arguments.mode = CLIENT_MODE;
   arguments.silent = false;
   arguments.verbose = false;
-  arguments.string = "[FILENAME]...";
+  arguments.string = "[FILENAME...]";
   argp_parse(&argp, argc, argv, 0, 0, &arguments);
   switch (arguments.mode)
   {
