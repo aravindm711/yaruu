@@ -71,18 +71,18 @@ int main(int argc, char **argv)
   arguments.mode = CLIENT_MODE;
   arguments.silent = false;
   arguments.verbose = false;
-  arguments.string = (char *)"[FILENAME]...";
+  arguments.string = (char *)"[FILENAME...]";
   argp_parse(&argp, argc, argv, 0, 0, &arguments);
   switch (arguments.mode)
   {
-      case CLIENT_MODE:
+  case CLIENT_MODE:
     printf("Starting rsync in client mode...\n");
     printf("ARGS %s\n", arguments.string);
     break;
-      case DAEMON_MODE:
+  case DAEMON_MODE:
     printf("Starting the rsync daemon...\n");
     break;
-      case PASSTHROUGH_MODE:
+  case PASSTHROUGH_MODE:
     printf("Starting rsync through passthrough...\n");
     break;
   }

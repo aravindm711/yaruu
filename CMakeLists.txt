@@ -43,11 +43,11 @@ enable_testing()
 
 add_executable(yaruu ${SOURCES})
 
-# this must have worked
-if(CMAKE_C_COMPILER_ID MATCHES GNU AND CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    #    target_link_libraries(yaruu -L/usr/local/lib)
-    #    target_link_libraries(yaruu -largp)
-endif()
+# # this must have worked
+# if(CMAKE_C_COMPILER_ID MATCHES GNU AND CMAKE_SYSTEM_NAME MATCHES "Darwin")
+#     #    target_link_libraries(yaruu -L/usr/local/lib)
+#     #    target_link_libraries(yaruu -largp)
+# endif()
 
 install(TARGETS yaruu DESTINATION bin)
 
