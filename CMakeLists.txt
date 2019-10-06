@@ -47,7 +47,9 @@ set(SOURCES
 enable_testing()
 
 add_executable(yaruu ${SOURCES})
+
 target_include_directories(yaruu PRIVATE "include")
+
 
 # # this must have worked
 # if(CMAKE_C_COMPILER_ID MATCHES GNU AND CMAKE_SYSTEM_NAME MATCHES "Darwin")
@@ -60,4 +62,3 @@ install(TARGETS yaruu DESTINATION bin)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
-
