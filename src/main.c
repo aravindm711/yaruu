@@ -59,8 +59,9 @@ static error_t parse_options(int key, char *arg, struct argp_state *state)
     argp_usage(state);
     break;
   default:
-    return ARGP_ERR_UNKNOWN;
+    break;
   }
+  return ARGP_ERR_UNKNOWN;
 }
 static struct argp argp = {options, parse_options, args_doc, doc, 0, 0, 0};
 
@@ -70,7 +71,7 @@ int main(int argc, char **argv)
   arguments.mode = CLIENT_MODE;
   arguments.silent = false;
   arguments.verbose = false;
-  arguments.string = "[FILENAME]...";
+  arguments.string = (char *)"[FILENAME...]";
   argp_parse(&argp, argc, argv, 0, 0, &arguments);
   switch (arguments.mode)
   {
