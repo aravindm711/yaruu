@@ -8,6 +8,7 @@
 #include <argp_config.h>
 #include <argh.h>
 #include <daemon.h>
+#include <pass_through.h>
 
 static error_t parse_options(int key, char *arg, struct argp_state *state)
 {
@@ -48,13 +49,13 @@ static error_t parse_options(int key, char *arg, struct argp_state *state)
       {
         argp_failure(state, 1, 0, "too few arguments");
       }
-      run_client(arguments->argh, arguments->argh_len);
+      run_client(&arguments->argh, &arguments->argh_len);
       break;
     case DAEMON_MODE:
-      run_daemon(arguments->argh, arguments->argh_len);
+      run_daemon(&arguments->argh, &arguments->argh_len);
       break;
     case PASSTHROUGH_MODE:
-      // run_pass_through(arguments->argh, arguments->argh_len);
+      run_pass_through(&arguments->argh, &arguments->argh_len);
       break;
     }
   }
