@@ -1,7 +1,7 @@
 #ifndef YARUU_H
 #define YARUU_H
 
-int run_client(char *arg, size_t arg_len)
+int run_client(char **arg, size_t *arg_len)
 {
     return 0;
 }
