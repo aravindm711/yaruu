@@ -36,8 +36,6 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/include)
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-
-
 set(SOURCES
     ${PROJECT_SOURCE_DIR}/main.c
     ${LIBRARY_OUTPUT_PATH}/daemon.h
@@ -50,6 +48,7 @@ enable_testing()
 
 add_executable(yaruu ${SOURCES})
 target_include_directories(yaruu PRIVATE "include")
+
 # # this must have worked
 # if(CMAKE_C_COMPILER_ID MATCHES GNU AND CMAKE_SYSTEM_NAME MATCHES "Darwin")
 #     #    target_link_libraries(yaruu -L/usr/local/lib)
