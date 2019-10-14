@@ -1,37 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h> // defines _Bool as typedef alias bool
 #include <unistd.h>
 #include <argp.h>
-#include <stdio.h>
-/*
- * Set argp globals 
- */
-// Program version
-const char *argp_program_version = "yaruu, v0.0.0";
-// Program bug address
-const char *argp_program_bug_address = "https://github.com/aravindm711/yaruu/issues";
-// Program doc.
-static char doc[] = "yaruu is a minimal and lightweight rsync wrapper that keeps it simple.\
-\vAuthored by:\nAakash Hemadri(https://github.com/aakashhemadri)\n\
-& Aravind Murali(https://github.com/aravindm711)";
-static char args_doc[] = "[FILENAME]...";
-static struct argp_option options[] = {
-    {"verbose", 'v', 0, 0, "Produce verbose output."},
-    {"quiet", 'q', 0, 0, "Don't produce any output."},
-    {"silent", 's', 0, OPTION_ALIAS},
-    {"daemon", 'd', 0, 0, "Runs yaruu as a daemon."},
-    {"pass-through", 'p', "RSYNC_ARGS", 0, "Passes through all options directly to the rsync daemon.", 0},
-    {0}};
-struct arguments
-{
-  bool silent, verbose;
-  enum
-  {
-    DAEMON_MODE,
-    PASSTHROUGH_MODE,
-    CLIENT_MODE
-  } mode;
-  char *string;
-};
+
+#include <yaruu.h>
+#include <argp_config.h>
+#include <argh.h>
+#include <daemon.h>
 
 static error_t parse_options(int key, char *arg, struct argp_state *state)
 {
@@ -52,39 +28,49 @@ static error_t parse_options(int key, char *arg, struct argp_state *state)
     arguments->mode = PASSTHROUGH_MODE;
     break;
   case ARGP_KEY_ARG:
-    arguments->string = arg;
-    state->next = state->argc + 1;
+    argh_add(&arguments->argh, &arguments->argh_len, arg);
     break;
+  case ARGP_KEY_INIT:
+    arguments->argh = 0;
+    arguments->argh_len = 0;
+    break;
+  case ARGP_KEY_END:
+  {
+    size_t count = arguments->argh_len;
+    switch (arguments->mode)
+    {
+    case CLIENT_MODE:
+      if (count > 2)
+      {
+        argp_failure(state, 1, 0, "too many arguments");
+      }
+      else if (count < 2)
+      {
+        argp_failure(state, 1, 0, "too few arguments");
+      }
+      run_client(arguments->argh, arguments->argh_len);
+      break;
+    case DAEMON_MODE:
+      run_daemon(arguments->argh, arguments->argh_len);
+      break;
+    case PASSTHROUGH_MODE:
+      // run_pass_through(arguments->argh, arguments->argh_len);
+      break;
+    }
+  }
+  break;
   case ARGP_KEY_NO_ARGS:
     argp_usage(state);
     break;
   default:
     break;
   }
-  return ARGP_ERR_UNKNOWN;
+  return 0;
 }
 static struct argp argp = {options, parse_options, args_doc, doc, 0, 0, 0};
+struct arguments arguments = {false, false, CLIENT_MODE, 0, 0};
 
 int main(int argc, char **argv)
 {
-  struct arguments arguments;
-  arguments.mode = CLIENT_MODE;
-  arguments.silent = false;
-  arguments.verbose = false;
-  arguments.string = (char *)"[FILENAME...]";
-  argp_parse(&argp, argc, argv, 0, 0, &arguments);
-  switch (arguments.mode)
-  {
-  case CLIENT_MODE:
-    printf("Starting rsync in client mode...\n");
-    printf("ARGS %s\n", arguments.string);
-    break;
-  case DAEMON_MODE:
-    printf("Starting the rsync daemon...\n");
-    break;
-  case PASSTHROUGH_MODE:
-    printf("Starting rsync through passthrough...\n");
-    break;
-  }
-  return 0;
+  return argp_parse(&argp, argc, argv, 0, 0, &arguments);
 }
