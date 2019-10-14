@@ -3,12 +3,12 @@
 #include <stdbool.h> // defines _Bool as typedef alias bool
 #include <unistd.h>
 #include <argp.h>
-
-#include <yaruu.h>
 #include <argp_config.h>
 #include <argh.h>
+
 #include <daemon.h>
 #include <pass_through.h>
+#include <yaruu.h>
 
 static error_t parse_options(int key, char *arg, struct argp_state *state)
 {
@@ -29,7 +29,7 @@ static error_t parse_options(int key, char *arg, struct argp_state *state)
     arguments->mode = PASSTHROUGH_MODE;
     break;
   case ARGP_KEY_ARG:
-    argh_add(&arguments->argh, &arguments->argh_len, arg);
+    argh_add(&arguments->argh, &arguments->argh_len, &arg);
     break;
   case ARGP_KEY_INIT:
     arguments->argh = 0;

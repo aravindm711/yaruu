@@ -1,8 +1,9 @@
+#ifndef ARGH_H
+#define ARGH_H
+
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef ARGH_H
-#define ARGH_H
 /*
 *   Argument handlers
 */
@@ -10,19 +11,20 @@
 /*
 *   Concatenates arguments
 */
-int argh_add(char **argh, size_t *argh_len, char *arg)
+int argh_add(char **argh, size_t *argh_len, char **arg)
 {
-    if (*argh != NULL && arg != NULL)
+    if (*argh == NULL && *arg != NULL)
     {
+        *argh = realloc(*argh, sizeof(*argh) + sizeof(*arg) + 2);
         strcat(*argh, " ");
-        strcat(*argh, arg);
+        strcat(*argh, *arg);
         *argh_len += 1;
         return 0;
     }
     else if (arg != NULL)
     {
-        *argh = (char *)malloc(sizeof(*arg));
-        strcpy(*argh, arg);
+        *argh = realloc(*argh, sizeof(*arg));
+        strcat(*argh, *arg);
         *argh_len += 1;
         return 0;
     }
@@ -36,13 +38,15 @@ int argh_add(char **argh, size_t *argh_len, char *arg)
 char **argh_extract(char **argh, size_t *argh_len, char **result)
 {
     int i, j = 0;
-    char *temp = (char *)malloc(*argh_len);
+    char *temp = (char *)malloc(sizeof(*argh));
     strcpy(temp, *argh);
     char *token = strtok(temp, " ");
-    result = (char **)malloc(*argh_len);
+    // if(result)
+    // result = (char **)malloc(*argh_len);
     while (token != NULL)
     {
-        result[i++] = token;
+        result[i++] = (char *)malloc(sizeof(token));
+        result[i] = token;
         token = strtok(NULL, " ");
     }
     return result;
