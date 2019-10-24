@@ -19,8 +19,8 @@ char **argh_add(char **argh, size_t *argh_len, char *arg)
         argh[0] = (char *)malloc(sizeof(char) * 6);
         argh[0] = (char *)"rsync";
         argh[1] = (char *)malloc(strlen(arg) + 1);
-        strcpy(argh[0], arg);
-        *argh_len += 1;
+        strcpy(argh[1], arg);
+        *argh_len += 2;
         return argh;
     }
     if (arg != NULL)

@@ -43,11 +43,11 @@ static error_t parse_options(int key, char *arg, struct argp_state *state)
         switch (arguments->mode)
         {
         case CLIENT_MODE:
-            if (count > 2)
+            if (count > 3)
             {
                 argp_failure(state, 1, 0, "too many arguments");
             }
-            else if (count < 2)
+            else if (count < 3)
             {
                 argp_failure(state, 1, 0, "too few arguments");
             }
