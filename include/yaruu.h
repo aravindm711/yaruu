@@ -8,24 +8,62 @@
 #ifndef YARUU_H
 #define YARUU_H
 
+/** yaruu_mode enum type
+ * 
+ */
+typedef enum yaruu_mode
+{
+    SRC_DEST,     // SRC [SRC]... DEST
+    SRC_HOST,     // SRC [SRC]... [USER@]HOST:DEST
+    SRC_DAEMON,   // SRC [SRC]... [USER@]HOST::DEST
+    SRC_PROTOCOL, // SRC [SRC]... rsync://[USER@]HOST[:PORT]/DEST
+    HOST_DEST,    // [USER@]HOST:SRC [DEST]
+    DAEMON_DEST,  // [USER@]HOST::SRC [DEST]
+    PROTOCOL_DEST // rsync://[USER@]HOST[:PORT]/SRC [DEST]
+} mode;
+
 void split_file(char **);
+mode validate(char **);
 
 int run_client(char **arg, size_t *arg_len)
 {
-    split_file(arg);
-
+    switch (validate(arg))
+    {
+    case SRC_DEST:
+    {
+        split_file(arg);
+        break;
+    }
+    case SRC_HOST:
+    {
+        break;
+    }
+    case SRC_DAEMON:
+    {
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
     return 0;
 }
 
-/*
- * Function: file_size
- * 
+/** Validating arguments.
+ * Parses the arguments to infer the kind of file transfer.
+ * @param arg: (char **)
+ */
+mode validate(char **arg)
+{
+    return SRC_DEST;
+}
+
+/** Calculates file size from path.
  * Returns the size of the file given in bytes
  * 
- * file_path: path to the file ( char* )
- * 
- * returns: size of the file given in bytes ( off_t )
- *          returns -1 on error ( if file is invalid )
+ * @param: const char* (File path)
+ * @return: off_t (Size of file in bytes.)
 */
 off_t file_size(const char *file_path)
 {
@@ -76,4 +114,9 @@ void split_file(char **arg)
     }
 }
 
+bool send_files()
+{
+
+    return true;
+}
 #endif // YARUU_H
