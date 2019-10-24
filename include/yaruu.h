@@ -30,12 +30,14 @@ typedef enum yaruu_mode
 int create_dir();
 int remove_dir();
 int count_dir();
+int check_dir();
 char **list_dir(int);
 
 /** Core Functionality.
  * 
  */
 mode validate(char **);
+int cat_file();
 int split_file(char **);
 int send_files(char **, char **, int);
 
@@ -127,6 +129,7 @@ int remove_dir()
         system(command);
         return 0;
     }
+
     return 1;
 }
 
@@ -142,7 +145,81 @@ int create_dir()
         mkdir(SPLIT_DIR, 0777);
         return 0;
     }
+
     return 1;
+}
+
+int count_dir()
+{
+    char command[45];
+    snprintf(command, 45, "ls %s | wc -l", RECV_DIR);
+    FILE* num_of_files = popen(command, "r");
+    int count = 0;
+    if (num_of_files)
+    {
+        fscanf(num_of_files, "%d", &count);
+    }
+
+    return count;
+}
+
+char** list_dir(int count)
+{
+    char* files[count];
+    DIR* d;
+    struct dirent *dir;
+    d = opendir(RECV_DIR);
+    if (d)
+    {
+        for (int i = -2; i < count; i++)
+        {
+            dir = readdir(d);
+            if (i >= 0)
+            {
+                files[i] = malloc(20);
+                strcpy(files[i], dir->d_name);
+            }
+        }
+        closedir(d);
+
+        return files;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+int check_dir()
+{
+    struct stat st = {0};
+    if (stat(RECV_DIR, &st) == 0)
+    {
+        if (count_dir())
+        {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+int cat_file()
+{
+    if (check_dir())
+    {
+        return 1;
+    }
+    int count = count_dir();
+    char** files = list_dir(count);
+
+    // for your reference
+    for (int i = 0; i < count; i++)
+    {
+        printf("%s\n", files[i]);
+    }
+
+    return 0;
 }
 
 /** Splitting file.
@@ -169,16 +246,21 @@ int split_file(char **arg)
 
 int send_files(char **arg, char **files, int no_of_files)
 {
-    for (int i = 0; i < no_of_files; i++)
+    if (no_of_files)
     {
-        char command[256];
-        /* Required to add support for globbed arguments */
-        if (snprintf(command, 256, "%s %s %s", COMMAND, files[i], arg[2]))
+        for (int i = 0; i < no_of_files; i++)
         {
-            return 1;
+            char command[256];
+            /* Required to add support for globbed arguments */
+            if (snprintf(command, 256, "%s %s %s", COMMAND, files[i], arg[2]))
+            {
+                return 1;
+            }
+            system(command);
         }
-        system(command);
+        return 0;
     }
-    return 0;
+
+    return 1;
 }
 #endif // YARUU_H
