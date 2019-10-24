@@ -7,6 +7,7 @@
 #define SPLIT_COMMAND "split"
 #define SPLIT_DIR "/tmp/yaruu-split-dir/"
 #define RECV_DIR "/tmp/yaruu-recv-dir/"
+#define COMMAND "rsync"
 
 #endif // Linux Conf.
 
@@ -16,6 +17,7 @@
 #define SPLIT_COMMAND "gsplit"
 #define SPLIT_DIR "/private/tmp/yaruu-split-dir/"
 #define RECV_DIR "/private/tmp/yaruu-recv-dir/"
+#define COMMAND "rsync"
 
 #endif // Apple Conf.
 

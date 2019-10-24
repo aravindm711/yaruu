@@ -24,10 +24,20 @@ typedef enum yaruu_mode
     PROTOCOL_DEST // rsync://[USER@]HOST[:PORT]/SRC [DEST]
 } mode;
 
-int split_file(char **);
+/** Helper functions.
+ * 
+ */
+int create_dir();
+int remove_dir();
+int count_dir();
+char **list_dir(int);
+
+/** Core Functionality.
+ * 
+ */
 mode validate(char **);
-void create_dir();
-void remove_dir();
+int split_file(char **);
+int send_files(char **, char **, int);
 
 int run_client(char **arg, size_t *arg_len)
 {
@@ -35,7 +45,14 @@ int run_client(char **arg, size_t *arg_len)
     {
     case SRC_DEST:
     {
-        split_file(arg);
+        if (split_file(arg))
+        {
+            return 1;
+        }
+        if (send_files(arg, list_dir(count_dir()), count_dir()))
+        {
+            return 1;
+        }
         break;
     }
     case SRC_HOST:
@@ -97,7 +114,10 @@ off_t file_size(const char *file_path)
     return -1;
 }
 
-void remove_dir()
+/** Removes directory.
+ * @return int (failure/success)
+ */
+int remove_dir()
 {
     struct stat st = {0};
     if (stat(SPLIT_DIR, &st) == 0)
@@ -110,31 +130,55 @@ void remove_dir()
     return 1;
 }
 
-void create_dir()
+/** Directory Creation.
+ * This is directory creation function called before split.
+ * @return int (failure/success)
+ */
+int create_dir()
 {
     struct stat st = {0};
     if (stat(SPLIT_DIR, &st) == -1)
     {
         mkdir(SPLIT_DIR, 0777);
+        return 0;
     }
     return 1;
 }
 
+/** Splitting file.
+ * Splits file into appropriate sizes.
+ */
 int split_file(char **arg)
 {
-    create_dir();
+    if (create_dir())
+    {
+        return 1;
+    }
 
-    char final_command[100];
-    snprintf(final_command, 100, "%s %s %ssplitfile_", SPLIT_COMMAND, arg[1], SPLIT_DIR);
+    char final_command[256];
+    snprintf(final_command, 256, "%s %s %ssplitfile_", SPLIT_COMMAND, arg[1], SPLIT_DIR);
     system(final_command);
-    printf("running: %s\n", final_command);
+    printf("running: %s\n", final_command); /* Requires to be put in appropriate verbose print statements*/
 
-    remove_dir();
+    if (remove_dir())
+    {
+        return 1;
+    }
+    return 0;
 }
 
-int send_files()
+int send_files(char **arg, char **files, int no_of_files)
 {
-
+    for (int i = 0; i < no_of_files; i++)
+    {
+        char command[256];
+        /* Required to add support for globbed arguments */
+        if (snprintf(command, 256, "%s %s %s", COMMAND, files[i], arg[2]))
+        {
+            return 1;
+        }
+        system(command);
+    }
     return 0;
 }
 #endif // YARUU_H
