@@ -17,9 +17,6 @@ int run_pass_through(char ***arg, size_t *arg_len)
     break;
   case 0:
   {
-    // for(int i = 0 ; i<3 ; i++){ 
-    //   printf("%s",(*arg)[i]);
-    //   }
     execvp("rsync", *arg);
     exit(1);
     break;
