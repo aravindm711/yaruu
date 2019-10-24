@@ -11,6 +11,9 @@
 #include <yaruu.h>
 #include <config.h>
 
+/** 
+ * 
+ */
 static error_t parse_options(int key, char *arg, struct argp_state *state)
 {
     struct arguments *arguments = state->input;
@@ -18,10 +21,10 @@ static error_t parse_options(int key, char *arg, struct argp_state *state)
     {
     case 'q':
     case 's':
-        arguments->silent = true;
+        arguments->silent = 0;
         break;
     case 'v':
-        arguments->verbose = true;
+        arguments->verbose = 0;
         break;
     case 'd':
         arguments->mode = DAEMON_MODE;
@@ -38,7 +41,7 @@ static error_t parse_options(int key, char *arg, struct argp_state *state)
         arguments->argh = 0;
         arguments->argh_len = 0;
         break;
-    case ARGP_KEY_END:
+    case ARGP_KEY_END: /* */
     {
         size_t count = arguments->argh_len;
         switch (arguments->mode)
@@ -71,8 +74,24 @@ static error_t parse_options(int key, char *arg, struct argp_state *state)
     }
     return 0;
 }
-static struct argp argp = {options, parse_options, args_doc, doc, 0, 0, 0};
-struct arguments arguments = {false, false, CLIENT_MODE, NULL, 0};
+
+static struct argp argp = {
+    options,       /* options struct defines all possible options. */
+    parse_options, /* function pointer to option parser. */
+    args_doc,      /* argument documentation used by argp. */
+    doc,           /* general documentation used by argp. */
+    0,             /* */
+    0,             /* */
+    0              /* */
+};
+
+struct arguments arguments = {
+    1,           /* silent */
+    1,           /* verbose */
+    CLIENT_MODE, /* mode */
+    NULL,        /* command's argument object */
+    0            /* command's argument length*/
+};
 
 int main(int argc, char **argv)
 {

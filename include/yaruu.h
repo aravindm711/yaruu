@@ -24,7 +24,7 @@ typedef enum yaruu_mode
     PROTOCOL_DEST // rsync://[USER@]HOST[:PORT]/SRC [DEST]
 } mode;
 
-void split_file(char **);
+int split_file(char **);
 mode validate(char **);
 void create_dir();
 void remove_dir();
@@ -43,6 +43,22 @@ int run_client(char **arg, size_t *arg_len)
         break;
     }
     case SRC_DAEMON:
+    {
+        break;
+    }
+    case SRC_PROTOCOL:
+    {
+        break;
+    }
+    case HOST_DEST:
+    {
+        break;
+    }
+    case DAEMON_DEST:
+    {
+        break;
+    }
+    case PROTOCOL_DEST:
     {
         break;
     }
@@ -89,7 +105,9 @@ void remove_dir()
         char command[40];
         sprintf(command, "rm -rf %s", SPLIT_DIR);
         system(command);
+        return 0;
     }
+    return 1;
 }
 
 void create_dir()
@@ -99,9 +117,10 @@ void create_dir()
     {
         mkdir(SPLIT_DIR, 0777);
     }
+    return 1;
 }
 
-void split_file(char **arg)
+int split_file(char **arg)
 {
     create_dir();
 
@@ -113,8 +132,9 @@ void split_file(char **arg)
     remove_dir();
 }
 
-bool send_files()
+int send_files()
 {
-    return true;
+
+    return 0;
 }
 #endif // YARUU_H
