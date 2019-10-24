@@ -17,7 +17,9 @@ int run_pass_through(char ***arg, size_t *arg_len)
         break;
     case 0:
     {
-        execvp("rsync", *arg);
+        char command[256];
+        snprintf(command, 256, "%s %s %s", (*arg)[0], (*arg)[1], (*arg)[2]);
+        system(command);
         exit(1);
         break;
     }
