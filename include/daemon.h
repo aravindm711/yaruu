@@ -7,8 +7,7 @@ int run_daemon(char ***arg, size_t *arg_len)
     {
         printf("%s", (*arg)[i]);
     }
-
     return 0;
 }
 
-#endif // DAEMON_Hq
+#endif // DAEMON_H
