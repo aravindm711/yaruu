@@ -6,10 +6,9 @@
 #include <argh.h>
 #include <unistd.h>
 
-int run_pass_through(char **arg, size_t *arg_len)
+int run_pass_through(char ***arg, size_t *arg_len)
 {
-  char **result = (char **)malloc(*arg_len);
-  result = argh_extract(arg, arg_len, result);
+  int pipes[2];
   switch (fork())
   {
   case -1:
@@ -17,11 +16,16 @@ int run_pass_through(char **arg, size_t *arg_len)
     exit(1);
     break;
   case 0:
-    execvp("rsync", result);
-    // printf("%s %s", result[0], result[1]);
-    break;
-  default:
+  {
+    // for(int i = 0 ; i<3 ; i++){ 
+    //   printf("%s",(*arg)[i]);
+    //   }
+    execvp("rsync", *arg);
     exit(1);
+    break;
+    }
+  default:
+    printf("yaruu exiting!");
     return 0;
   }
   return 1;

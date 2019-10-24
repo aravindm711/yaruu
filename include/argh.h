@@ -11,45 +11,36 @@
 /*
 *   Concatenates arguments
 */
-int argh_add(char **argh, size_t *argh_len, char **arg)
+char** argh_add(char **argh, size_t *argh_len, char *arg)
 {
-    if (*argh == NULL && *arg != NULL)
+    if (argh == NULL)
     {
-        *argh = realloc(*argh, sizeof(*argh) + sizeof(*arg) + 2);
-        strcat(*argh, " ");
-        strcat(*argh, *arg);
+        argh = (char **)malloc(1*sizeof(char *));
+        argh[0] = (char *)malloc(strlen(arg)+1);
+        strcpy(argh[0], arg);
         *argh_len += 1;
-        return 0;
+        return argh;
     }
-    else if (arg != NULL)
+    if (arg != NULL)
     {
-        *argh = realloc(*argh, sizeof(*arg));
-        strcat(*argh, *arg);
         *argh_len += 1;
-        return 0;
+        const int size = *argh_len;
+        argh = (char **)realloc(argh, sizeof(char *) * (size));
+        argh[size - 1] = arg;
+        return argh;
     }
-    return 1;
+    return (char **)0;
 }
 
 /*
 * Returns array of argumentsq
 * 
 */
-char **argh_extract(char **argh, size_t *argh_len, char **result)
+char *argh_index(char **argh, const int index)
 {
-    int i, j = 0;
-    char *temp = (char *)malloc(sizeof(*argh));
-    strcpy(temp, *argh);
-    char *token = strtok(temp, " ");
-    // if(result)
-    // result = (char **)malloc(*argh_len);
-    while (token != NULL)
-    {
-        result[i++] = (char *)malloc(sizeof(token));
-        result[i] = token;
-        token = strtok(NULL, " ");
-    }
-    return result;
+    if (index > 0 && index < sizeof(argh))
+        return argh[index];
+    return NULL;
 }
 
 int argh_size(char **argh, size_t *argh_len)

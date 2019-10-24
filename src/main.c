@@ -29,8 +29,10 @@ static error_t parse_options(int key, char *arg, struct argp_state *state)
     arguments->mode = PASSTHROUGH_MODE;
     break;
   case ARGP_KEY_ARG:
-    argh_add(&arguments->argh, &arguments->argh_len, &arg);
+  {
+    arguments->argh = argh_add(arguments->argh, &arguments->argh_len, arg);
     break;
+  }
   case ARGP_KEY_INIT:
     arguments->argh = 0;
     arguments->argh_len = 0;
@@ -49,7 +51,7 @@ static error_t parse_options(int key, char *arg, struct argp_state *state)
       {
         argp_failure(state, 1, 0, "too few arguments");
       }
-      run_client(&arguments->argh, &arguments->argh_len);
+      run_client(arguments->argh, &arguments->argh_len);
       break;
     case DAEMON_MODE:
       run_daemon(&arguments->argh, &arguments->argh_len);
@@ -69,7 +71,7 @@ static error_t parse_options(int key, char *arg, struct argp_state *state)
   return 0;
 }
 static struct argp argp = {options, parse_options, args_doc, doc, 0, 0, 0};
-struct arguments arguments = {false, false, CLIENT_MODE, 0, 0};
+struct arguments arguments = {false, false, CLIENT_MODE, NULL, 0};
 
 int main(int argc, char **argv)
 {

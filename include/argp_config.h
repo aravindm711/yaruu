@@ -34,7 +34,7 @@ struct arguments
         PASSTHROUGH_MODE,
         CLIENT_MODE
     } mode;
-    char *argh;
+    char **argh;
     size_t argh_len;
 };
 
