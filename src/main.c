@@ -9,6 +9,7 @@
 #include <daemon.h>
 #include <pass_through.h>
 #include <yaruu.h>
+#include <config.h>
 
 static error_t parse_options(int key, char *arg, struct argp_state *state)
 {
@@ -75,5 +76,5 @@ struct arguments arguments = {false, false, CLIENT_MODE, NULL, 0};
 
 int main(int argc, char **argv)
 {
-    return argp_parse(&argp, argc, argv, 0, 0, &arguments);
+    OS_CHECK
 }

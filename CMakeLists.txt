@@ -42,6 +42,7 @@ set(SOURCES
     ${LIBRARY_OUTPUT_PATH}/yaruu.h
     ${LIBRARY_OUTPUT_PATH}/argp_config.h
     ${LIBRARY_OUTPUT_PATH}/argh.h
+    ${LIBRARY_OUTPUT_PATH}/config.h
 )
 
 enable_testing()
