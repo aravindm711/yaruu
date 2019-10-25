@@ -31,13 +31,13 @@ int count_dir(int);
 int check_dir(int);
 int create_dir(int);
 int remove_dir(int);
-char **list_dir(int, int);
+char **list_dir(int, int, char **);
 
 /** Core Functionality.
  * 
  */
 mode validate(char **);
-int cat_file();
+int cat_file(char **);
 int split_file(char **);
 int send_files(char **, char **, int);
 
@@ -51,11 +51,6 @@ int run_client(char **arg, size_t *arg_len)
         {
             return 1;
         }
-        // if (send_files(arg, list_dir(count_dir(), 0), count_dir(0)))
-        // {
-        //     return 1;
-        // }
-        cat_file();
         break;
     }
     case SRC_HOST:
@@ -122,7 +117,7 @@ off_t file_size(const char *file_path)
  */
 int remove_dir(int sorc)
 {
-    const char* dir = (sorc == 0)? SPLIT_DIR: RECV_DIR;
+    const char *dir = (sorc == 0) ? SPLIT_DIR : RECV_DIR;
     struct stat st = {0};
     if (stat(dir, &st) == 0)
     {
@@ -140,7 +135,7 @@ int remove_dir(int sorc)
  */
 int create_dir(int sorc)
 {
-    const char* dir = (sorc == 0)? SPLIT_DIR: RECV_DIR;
+    const char *dir = (sorc == 0) ? SPLIT_DIR : RECV_DIR;
     struct stat st = {0};
     if (stat(dir, &st) == -1)
     {
@@ -156,10 +151,10 @@ int create_dir(int sorc)
  */
 int count_dir(int sorc)
 {
-    const char* dir = (sorc == 0)? SPLIT_DIR: RECV_DIR;
+    const char *dir = (sorc == 0) ? SPLIT_DIR : RECV_DIR;
     char command[45];
     snprintf(command, 45, "ls %s | wc -l", dir);
-    FILE* num_of_files = popen(command, "r");
+    FILE *num_of_files = popen(command, "r");
     int count = 0;
     if (num_of_files)
     {
@@ -172,11 +167,10 @@ int count_dir(int sorc)
 /** List of files in the directory RECV_DIR
  *  @return char** (files)
  */
-char** list_dir(int count, int sorc)
+char **list_dir(int count, int sorc, char **files)
 {
-    const char* directory = (sorc == 0)? SPLIT_DIR: RECV_DIR;
-    char* files[count];
-    DIR* d;
+    const char *directory = (sorc == 0) ? SPLIT_DIR : RECV_DIR;
+    DIR *d;
     struct dirent *dir;
     d = opendir(directory);
     if (d)
@@ -205,7 +199,7 @@ char** list_dir(int count, int sorc)
  */
 int check_dir(int sorc)
 {
-    const char* dir = (sorc == 0)? SPLIT_DIR: RECV_DIR;
+    const char *dir = (sorc == 0) ? SPLIT_DIR : RECV_DIR;
     struct stat st = {0};
     if (stat(dir, &st) == 0)
     {
@@ -221,14 +215,14 @@ int check_dir(int sorc)
 /** Concatenate all split files from RECV_DIR
  *  @return int (success/failure)
  */
-int cat_file()
+int cat_file(char **files)
 {
     if (check_dir(1))
     {
-return 1;
+        return 1;
     }
     int count = count_dir(1);
-    char** files = list_dir(count, 1);
+    files = list_dir(count, 1, files);
 
     // char list_of_files = "";
     // for (int i = 0; i < count; i++)
@@ -255,6 +249,13 @@ int split_file(char **arg)
     system(final_command);
     printf("running: %s\n", final_command); /* Requires to be put in appropriate verbose print statements*/
 
+    char **files = malloc(sizeof(char *) * count_dir(0));
+    printf("%d", count_dir(0));
+    if (send_files(arg, list_dir(count_dir(0), 0, files), count_dir(0)))
+    {
+        return 1;
+    }
+
     if (remove_dir(0))
     {
         return 1;
@@ -267,10 +268,12 @@ int send_files(char **arg, char **files, int no_of_files)
 {
     if (no_of_files)
     {
+        printf("%s", arg[2]);
         for (int i = 0; i < no_of_files; i++)
         {
             char command[256];
             /* Required to add support for globbed arguments */
+
             if (snprintf(command, 256, "%s %s %s", COMMAND, files[i], arg[2]))
             {
                 return 1;
