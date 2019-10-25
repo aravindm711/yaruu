@@ -140,10 +140,14 @@ int create_dir(int sorc)
     if (stat(dir, &st) == -1)
     {
         mkdir(dir, 0777);
-        return 0;
     }
 
-    return 1;
+    if (stat(dir, &st) == -1)
+    {
+        return 1;
+    }
+
+    return 0;
 }
 
 /** Counts number of files in the RECV_DIR
@@ -250,7 +254,6 @@ int split_file(char **arg)
     printf("running: %s\n", final_command); /* Requires to be put in appropriate verbose print statements*/
 
     char **files = malloc(sizeof(char *) * count_dir(0));
-    printf("%d", count_dir(0));
     if (send_files(arg, list_dir(count_dir(0), 0, files), count_dir(0)))
     {
         return 1;
@@ -264,22 +267,24 @@ int split_file(char **arg)
     return 0;
 }
 
+int split_algorithm(char **arg)
+{
+    return file_size(arg[1])/4;
+}
+
 int send_files(char **arg, char **files, int no_of_files)
 {
     if (no_of_files)
     {
-        printf("%s", arg[2]);
         for (int i = 0; i < no_of_files; i++)
         {
             char command[256];
             /* Required to add support for globbed arguments */
 
-            if (snprintf(command, 256, "%s %s %s", COMMAND, files[i], arg[2]))
-            {
-                return 1;
-            }
+            snprintf(command, 256, "%s %s%s %s", COMMAND, SPLIT_DIR, files[i], arg[2]);
             system(command);
         }
+
         return 0;
     }
 
