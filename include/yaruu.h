@@ -249,7 +249,7 @@ int split_file(char **arg)
     }
 
     char final_command[256];
-    snprintf(final_command, 256, "%s %s %ssplitfile_", SPLIT_COMMAND, arg[1], SPLIT_DIR);
+    snprintf(final_command, 256, "%s -n 4 %s %ssplitfile_", SPLIT_COMMAND, arg[1], SPLIT_DIR);
     system(final_command);
     printf("running: %s\n", final_command); /* Requires to be put in appropriate verbose print statements*/
 
