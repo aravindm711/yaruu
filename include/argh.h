@@ -11,14 +11,16 @@
 /*
 *   Concatenates arguments
 */
-char** argh_add(char **argh, size_t *argh_len, char *arg)
+char **argh_add(char **argh, size_t *argh_len, char *arg)
 {
     if (argh == NULL)
     {
-        argh = (char **)malloc(1*sizeof(char *));
-        argh[0] = (char *)malloc(strlen(arg)+1);
-        strcpy(argh[0], arg);
-        *argh_len += 1;
+        argh = (char **)malloc(2 * sizeof(char *));
+        argh[0] = (char *)malloc(sizeof(char) * 6);
+        argh[0] = (char *)"rsync";
+        argh[1] = (char *)malloc(strlen(arg) + 1);
+        strcpy(argh[1], arg);
+        *argh_len += 2;
         return argh;
     }
     if (arg != NULL)
@@ -33,7 +35,7 @@ char** argh_add(char **argh, size_t *argh_len, char *arg)
 }
 
 /*
-* Returns array of argumentsq
+* Returns array of arguments
 * 
 */
 char *argh_index(char **argh, const int index)

@@ -116,3 +116,5 @@ massif.out.*
 # BBV output files
 bb.out
 bb.out.*
+
+vgcore.*

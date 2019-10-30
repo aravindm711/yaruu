@@ -1,9 +1,10 @@
 # yaruu - yet another rsync wrapper
 
 yaruu is a lightweight rsync wrapper.
+
 - yaruu's primary goal is to try and optimize file transfers across systems and networks.
 
-# Features
+## Features
 
 - Substantial performance boosts.
   - [ ] Source is a file.
@@ -15,7 +16,7 @@ yaruu is a lightweight rsync wrapper.
   - Algorithm must poll network and figure best split to size ratio.
 - glob rsync commands.
 
-# Dependencies
+## Dependencies
 
 - rsync
 - gnu-coreutils
@@ -26,11 +27,11 @@ yaruu is a lightweight rsync wrapper.
 - argp
 - shc
 
-# Contributers
+## Contributers
 
 - [Aakash Hemadri](https://github.com/aakashhemadri)
 - [Aravind Murali](https://github.com/aravindm711)
 
-# License
+## License
 
 [GNU Lesser Public License](License.md)
