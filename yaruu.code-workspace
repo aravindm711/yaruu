@@ -12,10 +12,12 @@
 		"C_Cpp.default.cppStandard": "c++17",
 		"cmake.useCMakeServer": false,
 		"files.associations": {
-			"cstdlib": "c",
-			"stdbool.h": "c",
-			"stdlib.h": "c",
-			"unistd.h": "c"
-		}
+            "cstdlib": "c",
+            "stdbool.h": "c",
+            "stdlib.h": "c",
+            "unistd.h": "c",
+            "pass_through.h": "c"
+        },
+        "editor.detectIndentation": false
 	}
 }

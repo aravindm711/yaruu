@@ -42,12 +42,15 @@ set(SOURCES
     ${LIBRARY_OUTPUT_PATH}/yaruu.h
     ${LIBRARY_OUTPUT_PATH}/argp_config.h
     ${LIBRARY_OUTPUT_PATH}/argh.h
+    ${LIBRARY_OUTPUT_PATH}/config.h
 )
 
 enable_testing()
 
 add_executable(yaruu ${SOURCES})
+
 target_include_directories(yaruu PRIVATE "include")
+
 
 # # this must have worked
 # if(CMAKE_C_COMPILER_ID MATCHES GNU AND CMAKE_SYSTEM_NAME MATCHES "Darwin")

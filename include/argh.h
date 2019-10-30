@@ -1,8 +1,9 @@
+#ifndef ARGH_H
+#define ARGH_H
+
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef ARGH_H
-#define ARGH_H
 /*
 *   Argument handlers
 */
@@ -10,42 +11,38 @@
 /*
 *   Concatenates arguments
 */
-int argh_add(char **argh, size_t *argh_len, char *arg)
+char **argh_add(char **argh, size_t *argh_len, char *arg)
 {
-    if (*argh != NULL && arg != NULL)
+    if (argh == NULL)
     {
-        strcat(*argh, " ");
-        strcat(*argh, arg);
-        *argh_len += 1;
-        return 0;
+        argh = (char **)malloc(2 * sizeof(char *));
+        argh[0] = (char *)malloc(sizeof(char) * 6);
+        argh[0] = (char *)"rsync";
+        argh[1] = (char *)malloc(strlen(arg) + 1);
+        strcpy(argh[1], arg);
+        *argh_len += 2;
+        return argh;
     }
-    else if (arg != NULL)
+    if (arg != NULL)
     {
-        *argh = (char *)malloc(sizeof(*arg));
-        strcpy(*argh, arg);
         *argh_len += 1;
-        return 0;
+        const int size = *argh_len;
+        argh = (char **)realloc(argh, sizeof(char *) * (size));
+        argh[size - 1] = arg;
+        return argh;
     }
-    return 1;
+    return (char **)0;
 }
 
 /*
-* Returns array of argumentsq
+* Returns array of arguments
 * 
 */
-char **argh_extract(char **argh, size_t *argh_len, char **result)
+char *argh_index(char **argh, const int index)
 {
-    int i, j = 0;
-    char *temp = (char *)malloc(*argh_len);
-    strcpy(temp, *argh);
-    char *token = strtok(temp, " ");
-    result = (char **)malloc(*argh_len);
-    while (token != NULL)
-    {
-        result[i++] = token;
-        token = strtok(NULL, " ");
-    }
-    return result;
+    if (index > 0 && index < sizeof(argh))
+        return argh[index];
+    return NULL;
 }
 
 int argh_size(char **argh, size_t *argh_len)
