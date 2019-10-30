@@ -7,7 +7,7 @@
 #define SPLIT_COMMAND "split"
 #define SPLIT_DIR "/tmp/yaruu-split-dir/"
 #define RECV_DIR "/tmp/yaruu-recv-dir/"
-#define COMMAND "rsync"
+#define RSYNC "rsync"
 
 #endif // Linux Conf.
 
@@ -17,14 +17,14 @@
 #define SPLIT_COMMAND "gsplit"
 #define SPLIT_DIR "/private/tmp/yaruu-split-dir/"
 #define RECV_DIR "/private/tmp/yaruu-recv-dir/"
-#define COMMAND "rsync"
+#define RSYNC "rsync"
 
 #endif // Apple Conf.
 
-// #if defined(__linux__) && defined(__APPLE__)
+#if !defined(__linux__) && !defined(__APPLE__)
 
-// #define OS_CHECK fprintf(stderr, "Incompatible OS for command.\nInstall linux or MacOS for proper functioning\n"); exit(0);
+#define OS_CHECK fprintf(stderr, "Incompatible OS for command.\nInstall linux or MacOS for proper functioning\n"); exit(0);
 
-// #endif
+#endif
 
 #endif // CONFIG_H

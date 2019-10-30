@@ -35,7 +35,7 @@ char **argh_add(char **argh, size_t *argh_len, char *arg)
 }
 
 /*
-* Returns array of argumentsq
+* Returns array of arguments
 * 
 */
 char *argh_index(char **argh, const int index)

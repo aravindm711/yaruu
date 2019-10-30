@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -37,9 +38,11 @@ char **list_dir(int, int, char **);
  * 
  */
 mode validate(char **);
-int cat_file(char **, char **);
+int cat_file(char **);
 int split_file(char **);
 int send_files(char **, char **, int);
+int initiate_sending_process(char **);
+int initiate_merging_process(char **);
 
 int run_client(char **arg, size_t *arg_len)
 {
@@ -47,12 +50,10 @@ int run_client(char **arg, size_t *arg_len)
     {
     case SRC_DEST:
     {
-        if (split_file(arg))
+        if (initiate_sending_process(arg))
         {
             return 1;
         }
-        char** files = malloc(sizeof(char *) * count_dir(1));
-        cat_file(list_dir(count_dir(1), 1, files), arg);
         break;
     }
     case SRC_HOST:
@@ -158,7 +159,7 @@ int create_dir(int sorc)
 int count_dir(int sorc)
 {
     const char *dir = (sorc == 0) ? SPLIT_DIR : RECV_DIR;
-    if (check_dir(sorc))
+    if (check_dir(sorc) == 0)
     {
         char command[45];
         snprintf(command, 45, "ls %s | wc -l", dir);
@@ -180,9 +181,9 @@ int count_dir(int sorc)
  */
 char **list_dir(int count, int sorc, char **files)
 {
-    const char *directory = (sorc == 0) ? SPLIT_DIR : RECV_DIR;
-    if (check_dir(sorc))
+    if (check_dir(sorc) == 0)
     {
+        const char *directory = (sorc == 0) ? SPLIT_DIR : RECV_DIR;
         DIR *d;
         struct dirent *dir;
         d = opendir(directory);
@@ -221,59 +222,89 @@ int check_dir(int sorc)
     struct stat st = {0};
     if (stat(dir, &st) == 0)
     {
-        return 1;
+        return 0;
     }
 
-    return 0;
+    return 1;
 }
 
-/** Concatenate all split files from RECV_DIR
- *  @return int (success/failure)
- */
-int cat_file(char **files, char **arg)
-{
-    create_dir(1);
 
-    int count = count_dir(1);
-    files = list_dir(count, 1, files);
 
-    char cat_command[1024], absolute_path_to_file[256], recv_file_path[256];
-    snprintf(cat_command, 5, "cat ");
-    for (int i = 0; i < count; i++)
-    {
-        snprintf(absolute_path_to_file, 256, "%s%s ", RECV_DIR, files[i]);
-        strcat(cat_command, absolute_path_to_file);
-    }
-    snprintf(recv_file_path, 256, " >> %s/recv_file", arg[2]);
-    strcat(cat_command, recv_file_path);
-    printf("%s\n", cat_command);
-    printf("merging files...\n");
-    system(cat_command);
-    printf("received file merged and created\n");
+//   Sending process code begins
 
-    remove_dir(1);
 
-    return 0;
-}
 
 /** Splitting file.
  * Splits file into appropriate sizes.
  */
 int split_file(char **arg)
 {
+    char final_command[256];
+    snprintf(final_command, 256, "%s -n 4 %s %ssplitfile_", SPLIT_COMMAND, arg[1], SPLIT_DIR);
+    system(final_command);
+    // printf("running: %s\n", final_command); /* Requires to be put in appropriate verbose print statements*/
+    printf("splitting files...\n");
+
+    return 0;
+}
+
+int split_algorithm(char **arg)
+{
+    return file_size(arg[1])/4;
+}
+
+void *send_file_thread_func(void *arg)
+{
+    /* Required to add support for globbed arguments */
+    char command[256];
+    char *file = (char *)arg;
+    snprintf(command, 256, "%s %s%s %s", RSYNC, SPLIT_DIR, file, RECV_DIR);
+
+    system(command);
+}
+
+int send_files(char **arg, char **files, int no_of_files)
+{
+    if (no_of_files)
+    {
+        pthread_t thread_id[no_of_files];
+
+        printf("sending files to %s\n", arg[2]);
+        for (int i = 0; i < no_of_files; i++)
+        {
+            pthread_create(&thread_id[i], NULL, send_file_thread_func, (void *)files[i]);
+            // printf("sending %s\n", files[i]);
+        }
+
+        for (int i = 0; i < no_of_files; i++)
+        {
+            pthread_join(thread_id[i], NULL);
+        }
+
+        return 0;
+    }
+
+    return 1;
+}
+
+/** Function to initiate the process of sending
+ *  @return int (success/failure)
+ */
+int initiate_sending_process(char **arg)
+{
     if (create_dir(0))
     {
         return 1;
     }
 
-    char final_command[256];
-    snprintf(final_command, 256, "%s -n 4 %s %ssplitfile_", SPLIT_COMMAND, arg[1], SPLIT_DIR);
-    system(final_command);
-    printf("running: %s\n", final_command); /* Requires to be put in appropriate verbose print statements*/
-    printf("splitting files...\n");
+    if (split_file(arg))
+    {
+        return 1;
+    }
 
-    char **files = malloc(sizeof(char *) * count_dir(0));
-    if (send_files(arg, list_dir(count_dir(0), 0, files), count_dir(0)))
+    int count_of_files = count_dir(0);
+    char **files = malloc(sizeof(char *) * count_of_files);
+    if (send_files(arg, list_dir(count_of_files, 0, files), count_of_files))
     {
         return 1;
     }
@@ -286,30 +317,53 @@ int split_file(char **arg)
     return 0;
 }
 
-int split_algorithm(char **arg)
+
+
+// Sending process code ends
+
+// Receiving process code begins
+
+
+
+/** Concatenate all split files from RECV_DIR
+ *  @return int (success/failure)
+ */
+int cat_file(char **arg)
 {
-    return file_size(arg[1])/4;
+    char cat_command[1024];
+    snprintf(cat_command, 1024, "cat %s/splitfile_* >> %srecvfile", RECV_DIR, "");
+    printf("merging files...\n");
+    system(cat_command);
+    printf("received file merged and created\n");
+
+    return 0;
 }
 
-int send_files(char **arg, char **files, int no_of_files)
+/** Function to initiate merging of received files
+ *  @return int (success/failure)
+ */
+int initiate_merging_process(char **arg)
 {
-    if (no_of_files)
+    if (check_dir(1))
     {
-        printf("sending files to %s\n", arg[2]);
-        for (int i = 0; i < no_of_files; i++)
-        {
-            char command[256];
-            /* Required to add support for globbed arguments */
-
-            snprintf(command, 256, "%s %s%s %s", COMMAND, SPLIT_DIR, files[i], RECV_DIR);
-            system(command);
-            printf("sending %s\n", files[i]);
-        }
-
-        return 0;
+        return 1;
     }
 
-    return 1;
+    if (cat_file(arg))
+    {
+        return 1;
+    }
+
+    if (remove_dir(1))
+    {
+        return 1;
+    }
+
+    return 0;
 }
+
+
+
+// Receiving process code ends
 
 #endif // YARUU_H
